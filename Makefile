@@ -48,20 +48,21 @@ clean:
 	rm -rf $(STAGING_DIR)
 	rm -rf $(BUILDS_DIR)
 
-build: test
+#temporary build command
+build: 
 	mkdir -p $(STAGING_DIR)
 	mkdir -p $(BUILDS_DIR)
 	$(PIP_COMMAND) requirements/lambda.txt -t $(STAGING_DIR)
 	cp *.py $(STAGING_DIR)
 	cp *.yaml $(STAGING_DIR)
-        # Copy all other directories, excluding the blacklist.
-	$(eval $@DEPLOY_DIRS := $(shell find . -type d -depth 1 | grep -v  -E '$(EXCLUDE_DIRS)'))
-	cp -R $($@DEPLOY_DIRS) $(STAGING_DIR)
-	find $(STAGING_DIR) -type f -ipath '*.pyc' -delete  # Get rid of unnecessary .pyc files.
+	cp index.py $(STAGING_DIR)
+	cp -R utils $(STAGING_DIR)
+
 	$(eval $@FILE := deploy-$(shell date +%Y-%m-%d_%H-%M).zip)
 	cd $(STAGING_DIR); zip -r $($@FILE) ./*; mv *.zip ../$(BUILDS_DIR)
 	@echo "Built $(BUILDS_DIR)/$($@FILE)"
-	rm -rf $(STAGING_DIR)
+	#rm -rf $(STAGING_DIR)
+
 
 _check-arn:  # Ensure that an ARN is set before we can deploy to it.
 ifndef ARN
